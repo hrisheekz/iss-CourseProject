@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+    <meta charset="UTF-8">
+    <meta name = "viewport" content = "width=device-width, initial-scale=1.0">
+    <title>Identity-Verification</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Identity-Verified Arena</h1>
+        <p>Face-login</p>
+    </header>
+    <main>
+        <video id="video" width="480" height="300" autoplay playsinline muted></video>
+        <button id="start-camera">Start Camera</button>
+        <button id="capture-frame">Capture Frame</button>
+        <canvas id="capture-image" width="480" height="300" style="display:none"></canvas>
+    </main>
+    <button id="login-button">Login with Face</button>
+    <script src="/static/verification.js"></script>
+</body>
+</html>
