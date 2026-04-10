@@ -3,6 +3,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from pymongo import MongoClient
+from starlette.middleware.sessions import SessionMiddleware
+from fastapi import Request
 import sqlite3
 from utils.facial_recognition_module import find_closest_match
 
@@ -12,6 +14,7 @@ user_collection = db["users"]
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
+app.add_middleware(SessionMiddleware, secret_key="supersecretkey123")
 
 @app.get("/")
 def login_page():
@@ -21,13 +24,16 @@ class LoginRequest(BaseModel):
     image:str
 
 @app.post("/login")
-def login(request:LoginRequest):
+def login(request: Request,body: LoginRequest):
     db_images_dict = {}
     for doc in user_collection.find({},{"uid":1,"profile_image":1}):
         db_images_dict[doc["uid"]] = doc["profile_image"]
-    matched_id = find_closest_match(request.image,db_images_dict)
-    print("Testing with", len(db_images_dict), "images")
-    print("Done loading — face recognition module is accessible")
+    matched_id = find_closest_match(body.image,db_images_dict)
+    
+    #Debug statements
+    
+    # print("Testing with", len(db_images_dict), "images")
+    # print("Done loading — face recognition module is accessible")
 
     if matched_id is None:
         return {"success":False,"message":"No matching user has been found."}
@@ -47,4 +53,5 @@ def login(request:LoginRequest):
     con.commit()
     con.close()
 
+    request.session["uid"] = matched_id
     return {"success":True,"message":"Welcome back {}!".format(user[1])}
