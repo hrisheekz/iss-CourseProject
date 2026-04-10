@@ -1,0 +1,118 @@
+
+:root {
+    --bg-color: #010308; 
+    --panel-bg: #112342; 
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --accent-neon: #17d3f4; 
+    --accent-hover: #0891b2;
+    --success-color: #10b981;
+}
+
+
+body {
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+header h1 {
+    color: var(--accent-neon);
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
+}
+
+header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+
+main {
+    background-color: var(--panel-bg);
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    max-width: 520px;
+    width: 100%;
+}
+
+
+#video {
+    border: 2px solid var(--accent-neon);
+    border-radius: 8px;
+    background-color: #000;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
+    object-fit: cover;
+}
+
+
+canvas {
+    border-radius: 8px;
+    border: 2px dashed var(--text-secondary);
+}
+
+
+button {
+    background-color: var(--accent-neon);
+    color: #000;
+    border: none;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    width: 100%;
+    max-width: 300px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+button:hover {
+    background-color: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+
+#login-button {
+    margin-top: 2rem;
+    background-color: var(--success-color);
+    color: white;
+    max-width: 350px;
+    font-size: 1.1rem;
+}
+
+#login-button:hover {
+    background-color: #059669;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
