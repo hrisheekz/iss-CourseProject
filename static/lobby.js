@@ -53,6 +53,7 @@ function handleMessage(data){
         window.location.href = "/game"
     }
 }
+
 function renderGrid(users){
     const grid = document.getElementById("user-grid")
     if (!grid)
@@ -67,14 +68,14 @@ function renderGrid(users){
         infodiv.innerHTML = `<strong>${user.name}</strong><p>Elo: ${user.elo_rating}</p>`
         card.appendChild(infodiv)
 
-        if (myid && user_uid != myid){
+        if (myid && user.uid != myid){
             const btn = document.createElement("button")
             btn.textContent = "Challenge"
             btn.className = "challenge-btn"
             btn.onclick = () => sendChallenge(user.uid)
             card.appendChild(btn)
         }
-        else if(user_uid == myid){
+        else if(user.uid == myid){
             card.style.border = "1px solid #10b981"; // Green border for yourself
             card.style.opacity = "0.8";
         }
