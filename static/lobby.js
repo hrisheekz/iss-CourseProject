@@ -53,56 +53,33 @@ function handleMessage(data){
         window.location.href = "/game"
     }
 }
-
-// function renderGrid(users){
-//     const grid = document.getElementById("user-grid")
-//     grid.innerHTML = ""
-//     users.forEach(user => {
-//         const card = document.createElement("div")
-//         card.className = "user-card"
-//         card.textContent = user.name + " (" + user.elo_rating + ")"
-//         if (user.uid != myid)
-//         {
-//             card.addEventListener("click",() => sendChallenge(user.uid))
-//         }
-//         else
-//         {
-//             card.style.opacity = 0.5
-//         }
-//         grid.appendChild(card)
-//     });
-// }
-
-function renderGrid(users) {
-    const grid = document.getElementById("user-grid");
-    if (!grid) return;
-    grid.innerHTML = "";
+function renderGrid(users){
+    const grid = document.getElementById("user-grid")
+    if (!grid)
+        return
+    grid.innerHTML = ""
 
     users.forEach(user => {
-        const card = document.createElement("div");
-        card.className = "user-card";
+        const card = document.createElement("div")
+        card.className = "user-card"
+        const infodiv = document.createElement("div")
+        infodiv.className = "user-info"
+        infodiv.innerHTML = `<strong>${user.name}</strong><p>Elo: ${user.elo_rating}</p>`
+        card.appendChild(infodiv)
 
-        // Create the Info Section
-        const infoDiv = document.createElement("div");
-        infoDiv.className = "user-info";
-        infoDiv.innerHTML = `<strong>${user.name}</strong><p>Elo: ${user.elo_rating}</p>`;
-        card.appendChild(infoDiv);
-
-        // Logic for the Button
-        // We use a loose inequality (!=) in case one is a string and one is an int
-        if (myid && user.uid != myid) {
-            const btn = document.createElement("button");
-            btn.textContent = "Challenge";
-            btn.className = "challenge-btn";
-            btn.onclick = () => sendChallenge(user.uid);
-            card.appendChild(btn);
-        } else if (user.uid == myid) {
+        if (myid && user_uid != myid){
+            const btn = document.createElement("button")
+            btn.textContent = "Challenge"
+            btn.className = "challenge-btn"
+            btn.onclick = () => sendChallenge(user.uid)
+            card.appendChild(btn)
+        }
+        else if(user_uid == myid){
             card.style.border = "1px solid #10b981"; // Green border for yourself
             card.style.opacity = "0.8";
         }
-
-        grid.appendChild(card);
-    });
+        grid.appendChild(card)
+    })
 }
 
 function sendChallenge(targetUid){
