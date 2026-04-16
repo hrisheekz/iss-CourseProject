@@ -188,6 +188,23 @@ async def handle_move(uid:str,cell:int):
                 "turn":next_turn,
                 "winner":winner
             }))
+    # phase - 4 -----*--------
+    if winner:
+        p1_uid = room["players"][0]  # This player is always "X"
+        p2_uid = room["players"][1]  # This player is always "O"
+        
+        if winner == "draw":
+            update_elo(p1_uid, p2_uid, 0.5)
+        else:
+            # If X won, p1_score is 1.0. If O won, p1_score is 0.0.
+            p1_score = 1.0 if winner == "X" else 0.0
+            update_elo(p1_uid, p2_uid, p1_score)
+            
+        # Clean up the room so it doesn't leak memory
+        del rooms[room_id]
+        
+        # Optionally trigger a lobby update so everyone sees the new Elos
+        await broadcast_lobby_update()
 
 async def handle_message(uid:str,msg:dict):
     if msg["type"] == "request_lobby":
@@ -200,6 +217,40 @@ async def handle_message(uid:str,msg:dict):
         await handle_decline(uid,msg["challenger_uid"])
     elif msg["type"] == "move":
         await handle_move(uid,msg["cell"])
+
+
+# phase 4 ----*-----
+
+def update_elo(p1_uid: str, p2_uid: str, p1_score: float):
+    
+    # p1_score: 1.0 for a win, 0.5 for a draw, 0.0 for a loss.
+    
+    con = sqlite3.connect("data.db")
+    cursor = con.cursor()
+    
+    # Fetch current ratings
+    cursor.execute("SELECT elo_rating FROM users WHERE uid = ?", (p1_uid,))
+    p1_rating = cursor.fetchone()[0]
+    
+    cursor.execute("SELECT elo_rating FROM users WHERE uid = ?", (p2_uid,))
+    p2_rating = cursor.fetchone()[0]
+    
+    # Elo Math
+    K = 32
+    E1 = 1 / (1 + 10 ** ((p2_rating - p1_rating) / 400))
+    E2 = 1 / (1 + 10 ** ((p1_rating - p2_rating) / 400))
+    
+    p2_score = 1.0 - p1_score
+    
+    new_p1 = round(p1_rating + K * (p1_score - E1))
+    new_p2 = round(p2_rating + K * (p2_score - E2))
+    
+    # Update 
+    cursor.execute("UPDATE users SET elo_rating = ? WHERE uid = ?", (new_p1, p1_uid))
+    cursor.execute("UPDATE users SET elo_rating = ? WHERE uid = ?", (new_p2, p2_uid))
+    con.commit()
+    con.close()
+# -------*-----------
 
 @app.websocket("/ws/{uid}")
 async def websocket_endpoint(websocket: WebSocket,uid: str):
