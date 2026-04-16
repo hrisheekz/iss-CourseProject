@@ -272,3 +272,24 @@ async def websocket_endpoint(websocket: WebSocket,uid: str):
         con.commit()
         con.close()
         await broadcast_lobby_update()
+
+
+# phase - 4 ------*--------
+
+@app.get("/leaderboard")
+def leaderboard_page(request: Request):
+    # Protect the route if needed, or leave open
+    if request.session.get("uid") is None:
+         return RedirectResponse("/")
+    return FileResponse("leaderboard.html")
+
+@app.get("/api/leaderboard")
+def get_leaderboard():
+    con = sqlite3.connect("data.db")
+    cursor = con.cursor()
+    # SQL automatically sorts them descending for you
+    cursor.execute("SELECT uid, name, elo_rating FROM users ORDER BY elo_rating DESC")
+    users = [{"uid": row[0], "name": row[1], "elo_rating": row[2]} for row in cursor.fetchall()]
+    con.close()
+    return users
+# ------*-----------
