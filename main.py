@@ -265,6 +265,38 @@ async def websocket_endpoint(websocket: WebSocket,uid: str):
             await handle_message(uid,msg)
     except WebSocketDisconnect:
         del connected_users[uid]
+        # con = sqlite3.connect("data.db")
+        # cursor = con.cursor()
+        # q1 = "UPDATE users SET is_online = FALSE where uid = ?"
+        # cursor.execute(q1,(uid,))
+        # con.commit()
+        # con.close()
+        # await broadcast_lobby_update()
+
+        # --- PHASE 4: HANDLE MID-MATCH DISCONNECTS ---
+        room_to_delete = None
+        for room_id, room in rooms.items():
+            if uid in room["players"]:
+                # Identify the remaining player
+                remaining_player = room["players"][1] if room["players"][0] == uid else room["players"][0]
+                
+                # The remaining player wins, the disconnected player (uid) loses
+                update_elo(remaining_player, uid, 1.0)
+                
+                # Alert the remaining player that they won by forfeit
+                if remaining_player in connected_users:
+                    await connected_users[remaining_player].send_text(json.dumps({
+                        "type": "game_over",
+                        "reason": "opponent_disconnected",
+                        "winner": "you"
+                    }))
+                room_to_delete = room_id
+                break
+                
+        if room_to_delete:
+            del rooms[room_to_delete]
+            
+        # --- ORIGINAL DISCONNECT LOGIC ---
         con = sqlite3.connect("data.db")
         cursor = con.cursor()
         q1 = "UPDATE users SET is_online = FALSE where uid = ?"
