@@ -1,0 +1,124 @@
+body {
+    background: radial-gradient(circle at top, #112342 0%, #010308 100%);
+    color: #f8fafc;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 40px;
+    box-sizing: border-box;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+header h1 {
+    color: #17d3f4;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 0 20px rgba(23, 211, 244, 0.5);
+    margin-bottom: 0.5rem;
+}
+
+#game-info {
+    color: #94a3b8;
+    font-size: 1rem;
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+main {
+    background: rgba(17, 35, 66, 0.6);
+    border: 1px solid rgba(23, 211, 244, 0.2);
+    border-radius: 16px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 420px;
+}
+
+#status {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #17d3f4;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#game-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    width: 100%;
+}
+
+.cell {
+    background: #0f172a;
+    border: 1px solid rgba(23, 211, 244, 0.3);
+    border-radius: 10px;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #f8fafc;
+}
+
+.cell:hover {
+    border-color: #17d3f4;
+    background: rgba(23, 211, 244, 0.05);
+    box-shadow: 0 0 15px rgba(23, 211, 244, 0.2);
+}
+
+.cell.x {
+    color: #17d3f4;
+}
+
+.cell.o {
+    color: #f43f5e;
+}
+
+#game-result {
+    text-align: center;
+    padding: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+}
+
+#result-message {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #10b981;
+    margin-bottom: 1rem;
+}
+
+#back-to-lobby {
+    background-color: #17d3f4;
+    color: #010308;
+    border: none;
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.2s ease;
+}
+
+#back-to-lobby:hover {
+    background-color: #0891b2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+}
