@@ -13,7 +13,7 @@ async function init(){
     const response = await fetch("/me")
     const data = await response.json()
     myid = data.uid
-    socket = new WebSocket("ws://localhost:8000/ws/" + myid)
+    socket = new WebSocket("ws://localhost:8000/ws/"+myid)
     socket.onopen = () => {
         socket.send(JSON.stringify({type:"get_game_state",room_id:roomid}))
     }
