@@ -50,7 +50,7 @@ function handleMessage(data){
     }
     else if(data.type == "game_start")
     {
-        window.location.href = "/game"
+        window.location.href = "/game?roomid=" + data.room_id
     }
 }
 

@@ -178,8 +178,13 @@ async def handle_move(uid:str,cell:int):
     symbol = "X" if uid == room["players"][0] else "O"
     room["board"][cell] = symbol
     winner = check_winner(room["board"])
-    next_turn = room["players"][1] if uid == room["players"][0] else room["players"][0]
-    room["turn"] = next_turn
+    if winner is None:
+        next_turn = room["players"][1] if uid == room["players"][0] else room["players"][0]
+        room["turn"] = next_turn
+    else:
+        next_turn = None
+        del rooms[room_id]
+    
     for player_uid in room["players"]:
         if player_uid in connected_users:
             await connected_users[player_uid].send_text(json.dumps({
@@ -188,6 +193,19 @@ async def handle_move(uid:str,cell:int):
                 "turn":next_turn,
                 "winner":winner
             }))
+
+async def handle_get_game_state(uid:str,room_id:str):
+    if room_id not in rooms:
+        return
+    room = rooms[room_id]
+    opponent_uid = room["players"][1] if uid == room["players"][0] else room["players"][0]
+    await connected_users[uid].send_text(json.dumps({
+        "type":"game_init",
+        "your_symbol":"X" if uid == room["players"][0] else "O",
+        "opponent_name":get_name(opponent_uid),
+        "turn":room["turn"],
+        "board":room["board"]
+    }))
 
 async def handle_message(uid:str,msg:dict):
     if msg["type"] == "request_lobby":
@@ -200,11 +218,20 @@ async def handle_message(uid:str,msg:dict):
         await handle_decline(uid,msg["challenger_uid"])
     elif msg["type"] == "move":
         await handle_move(uid,msg["cell"])
+    elif msg["type"] == "get_game_state":
+        await handle_get_game_state(uid,msg["room_id"])
 
 @app.websocket("/ws/{uid}")
 async def websocket_endpoint(websocket: WebSocket,uid: str):
     await websocket.accept()
     connected_users[uid] = websocket
+    con = sqlite3.connect("data.db")
+    cursor = con.cursor()
+    q1 = "UPDATE users SET is_online = TRUE where uid = ?"
+    cursor.execute(q1,(uid,))
+    con.commit()
+    con.close()
+    
     await broadcast_lobby_update()
 
     try:
@@ -221,3 +248,10 @@ async def websocket_endpoint(websocket: WebSocket,uid: str):
         con.commit()
         con.close()
         await broadcast_lobby_update()
+
+@app.get("/game")
+def game_page(request:Request):
+    id = request.session.get("uid")
+    if id is None:
+        return RedirectResponse("/")
+    return FileResponse("game.html")

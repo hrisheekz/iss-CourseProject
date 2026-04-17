@@ -22,6 +22,7 @@ async function init(){
         handleMessage(msg)
     }
 }
+
 window.onload = () => init()
 
 function handleMessage(msg){
