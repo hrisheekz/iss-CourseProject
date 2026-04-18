@@ -344,8 +344,10 @@ def leaderboard_page(request: Request):
 def get_leaderboard():
     con = sqlite3.connect("data.db")
     cursor = con.cursor()
-    # sorted in descending by default
-    cursor.execute("SELECT uid, name, elo_rating FROM users ORDER BY elo_rating DESC")
-    users = [{"uid": row[0], "name": row[1], "elo_rating": row[2]} for row in cursor.fetchall()]
+    cursor.execute("SELECT uid, name, elo_rating, is_online FROM users ORDER BY elo_rating DESC")
+    users = [
+        {"rank": i + 1, "uid": row[0], "name": row[1], "elo_rating": row[2], "is_online": bool(row[3])}
+        for i, row in enumerate(cursor.fetchall())
+    ]
     con.close()
     return users

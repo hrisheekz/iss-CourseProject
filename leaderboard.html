@@ -8,7 +8,7 @@
 </head>
 <body>
     <header>
-        <a href="/lobby.html" class="back-link">← Back to Lobby</a>
+        <a href="/lobby" class="back-link">← Back to Lobby</a>
         <h1>Global Leaderboard</h1>
         <p class="subtitle">Ranked by Elo Rating</p>
     </header>
@@ -39,7 +39,7 @@
     <script>
         async function loadLeaderboard() {
             try {
-                const res = await fetch("/leaderboard-data");
+                const res = await fetch("/api/leaderboard");
                 const players = await res.json();
 
                 const tbody = document.getElementById("leaderboard-body");
