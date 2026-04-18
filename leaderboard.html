@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard — Arena</title>
+    <link rel="stylesheet" href="/static/leaderboard.css">
+</head>
+<body>
+    <header>
+        <a href="/lobby.html" class="back-link">← Back to Lobby</a>
+        <h1>Global Leaderboard</h1>
+        <p class="subtitle">Ranked by Elo Rating</p>
+    </header>
+
+    <main>
+        <div id="stats-bar">
+            <div class="stat-pill" id="total-players">— Players</div>
+            <div class="stat-pill online" id="online-count">— Online</div>
+        </div>
+
+        <div class="table-wrapper">
+            <table id="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th class="col-rank">Rank</th>
+                        <th class="col-name">Player</th>
+                        <th class="col-elo">Elo</th>
+                        <th class="col-status">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    <tr><td colspan="4" class="loading-row">Loading rankings...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        async function loadLeaderboard() {
+            try {
+                const res = await fetch("/leaderboard-data");
+                const players = await res.json();
+
+                const tbody = document.getElementById("leaderboard-body");
+                tbody.innerHTML = "";
+
+                const onlineCount = players.filter(p => p.is_online).length;
+                document.getElementById("total-players").textContent = players.length + " Players";
+                document.getElementById("online-count").textContent = onlineCount + " Online";
+
+                // Fetch current user for highlighting
+                let myUid = null;
+                try {
+                    const meRes = await fetch("/me");
+                    const me = await meRes.json();
+                    if (!me.error) myUid = me.uid;
+                } catch (_) {}
+
+                players.forEach(player => {
+                    const tr = document.createElement("tr");
+                    if (player.uid === myUid) tr.classList.add("my-row");
+
+                    let rankDisplay;
+                    if (player.rank === 1) rankDisplay = `<span class="medal gold">🥇</span>`;
+                    else if (player.rank === 2) rankDisplay = `<span class="medal silver">🥈</span>`;
+                    else if (player.rank === 3) rankDisplay = `<span class="medal bronze">🥉</span>`;
+                    else rankDisplay = `<span class="rank-num">#${player.rank}</span>`;
+
+                    const statusDot = player.is_online
+                        ? `<span class="status-dot online" title="Online"></span><span class="status-label">Online</span>`
+                        : `<span class="status-dot offline" title="Offline"></span><span class="status-label offline">Offline</span>`;
+
+                    tr.innerHTML = `
+                        <td class="col-rank">${rankDisplay}</td>
+                        <td class="col-name">
+                            <span class="player-name">${escapeHtml(player.name)}</span>
+                            ${player.uid === myUid ? '<span class="you-badge">You</span>' : ''}
+                        </td>
+                        <td class="col-elo"><span class="elo-value">${player.elo_rating}</span></td>
+                        <td class="col-status">${statusDot}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (err) {
+                document.getElementById("leaderboard-body").innerHTML =
+                    `<tr><td colspan="4" class="loading-row" style="color:#f87171">Failed to load leaderboard.</td></tr>`;
+            }
+        }
+
+        function escapeHtml(str) {
+            const d = document.createElement("div");
+            d.appendChild(document.createTextNode(str));
+            return d.innerHTML;
+        }
+
+        loadLeaderboard();
+        // Auto-refresh every 15 seconds
+        setInterval(loadLeaderboard, 15000);
+    </script>
+</body>
+</html>
