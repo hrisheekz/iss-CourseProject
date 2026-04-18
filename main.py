@@ -161,6 +161,39 @@ def check_winner(board:list) -> str:
         return "draw"
     return None
 
+
+# -----*------ phase 4
+def update_elo(p1_uid: str, p2_uid: str, p1_score: float):
+    
+     # score: 1.0 for a win, 0.5 for a draw, 0.0 for a loss
+    
+    con = sqlite3.connect("data.db")
+    cursor = con.cursor()
+    
+    cursor.execute("SELECT elo_rating FROM users WHERE uid = ?", (p1_uid,))
+    p1_rating = cursor.fetchone()[0]
+    
+    cursor.execute("SELECT elo_rating FROM users WHERE uid = ?", (p2_uid,))
+    p2_rating = cursor.fetchone()[0]
+    
+    # Elo Math
+    K = 32
+    E1 = 1 / (1 + 10 ** ((p2_rating - p1_rating) / 400))
+    E2 = 1 / (1 + 10 ** ((p1_rating - p2_rating) / 400))
+    
+    p2_score = 1.0 - p1_score
+    
+    new_p1 = round(p1_rating + K * (p1_score - E1))
+    new_p2 = round(p2_rating + K * (p2_score - E2))
+    
+    cursor.execute("UPDATE users SET elo_rating = ? WHERE uid = ?", (new_p1, p1_uid))
+    cursor.execute("UPDATE users SET elo_rating = ? WHERE uid = ?", (new_p2, p2_uid))
+    con.commit()
+    con.close()
+
+
+# ------*------
+
 async def handle_move(uid:str,cell:int):
     room = None
     room_id = None
@@ -183,7 +216,6 @@ async def handle_move(uid:str,cell:int):
         room["turn"] = next_turn
     else:
         next_turn = None
-        del rooms[room_id]
     
     for player_uid in room["players"]:
         if player_uid in connected_users:
@@ -193,6 +225,22 @@ async def handle_move(uid:str,cell:int):
                 "turn":next_turn,
                 "winner":winner
             }))
+    # --- phase 4: update elo 
+    if winner is not None:
+        p1_uid = room["players"][0]  # "X"
+        p2_uid = room["players"][1]  # "O"
+        
+        if winner == "draw":
+            update_elo(p1_uid, p2_uid, 0.5)
+        else:
+            if winner == "X":
+                p1_score = 1.0
+            else:
+                p1_score = 0.0
+            update_elo(p1_uid, p2_uid, p1_score)
+            
+        del rooms[room_id]
+        await broadcast_lobby_update()
 
 async def handle_get_game_state(uid:str,room_id:str):
     if room_id not in rooms:
@@ -241,6 +289,35 @@ async def websocket_endpoint(websocket: WebSocket,uid: str):
             await handle_message(uid,msg)
     except WebSocketDisconnect:
         del connected_users[uid]
+        # con = sqlite3.connect("data.db")
+        # cursor = con.cursor()
+        # q1 = "UPDATE users SET is_online = FALSE where uid = ?"
+        # cursor.execute(q1,(uid,))
+        # con.commit()
+        # con.close()
+        # await broadcast_lobby_update()
+
+        # --- phase 4 -  handle mid match disconnects
+        room_to_delete = None
+        for room_id, room in rooms.items():
+            if uid in room["players"]:
+                remaining_player = room["players"][1] if room["players"][0] == uid else room["players"][0]
+                
+                update_elo(remaining_player, uid, 1.0) # remaining player wins
+                
+                if remaining_player in connected_users:
+                    await connected_users[remaining_player].send_text(json.dumps({
+                        "type": "game_over",
+                        "reason": "opponent_disconnected",
+                        "winner": "you"
+                    }))
+                room_to_delete = room_id
+                break
+                
+        if room_to_delete:
+            del rooms[room_to_delete]
+            
+        # Original offline status update
         con = sqlite3.connect("data.db")
         cursor = con.cursor()
         q1 = "UPDATE users SET is_online = FALSE where uid = ?"
@@ -255,3 +332,20 @@ def game_page(request:Request):
     if id is None:
         return RedirectResponse("/")
     return FileResponse("game.html")
+
+# phase 4 ----*------
+@app.get("/leaderboard")
+def leaderboard_page(request: Request):
+    if request.session.get("uid") is None:
+         return RedirectResponse("/")
+    return FileResponse("leaderboard.html")
+
+@app.get("/api/leaderboard")
+def get_leaderboard():
+    con = sqlite3.connect("data.db")
+    cursor = con.cursor()
+    # sorted in descending by default
+    cursor.execute("SELECT uid, name, elo_rating FROM users ORDER BY elo_rating DESC")
+    users = [{"uid": row[0], "name": row[1], "elo_rating": row[2]} for row in cursor.fetchall()]
+    con.close()
+    return users
