@@ -9,6 +9,7 @@ let capturedImage = null;
 startBtn.addEventListener('click',async()=>{
     const stream = await navigator.mediaDevices.getUserMedia({ video: true })
     video.srcObject = stream
+    if (typeof window.setCatStartled === 'function') window.setCatStartled();
 })
 
 captureBtn.addEventListener('click',()=>{
