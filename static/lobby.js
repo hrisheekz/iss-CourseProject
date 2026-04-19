@@ -12,10 +12,10 @@ async function init(){
     }
 
     myid = data.uid
-    document.querySelector("#welcome-message").textContent = "Welcome " + data.name + "!"
-    const init_lobby = await fetch("/initial-lobby")
-    const users = await init_lobby.json()
-    renderGrid(users)
+    document.querySelector("#profile-name").textContent = data.name
+    // const init_lobby = await fetch("/initial-lobby")
+    // const users = await init_lobby.json()
+    // renderGrid(users)
     socket = new WebSocket("ws://localhost:8000/ws/"+myid)
     socket.onopen = () => {
         console.log("Connection has been established.")

@@ -45,18 +45,21 @@
                 const tbody = document.getElementById("leaderboard-body");
                 tbody.innerHTML = "";
 
-                const onlineCount = players.filter(p => p.is_online).length;
-                document.getElementById("total-players").textContent = players.length + " Players";
-                document.getElementById("online-count").textContent = onlineCount + " Online";
-
                 // Fetch current user for highlighting
                 let myUid = null;
                 try {
                     const meRes = await fetch("/me");
                     const me = await meRes.json();
                     if (!me.error) myUid = me.uid;
+                    players.forEach(p => {
+                        if (p.uid === myUid) p.is_online = true;
+                    });
                 } catch (_) {}
-
+                
+                const onlineCount = players.filter(p => p.is_online).length;
+                document.getElementById("total-players").textContent = players.length + " Players";
+                document.getElementById("online-count").textContent = onlineCount + " Online";
+                
                 players.forEach(player => {
                     const tr = document.createElement("tr");
                     if (player.uid === myUid) tr.classList.add("my-row");

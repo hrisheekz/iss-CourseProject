@@ -39,6 +39,10 @@ function handleMessage(msg){
             showResult(msg.winner)
         }
     }
+    else if(msg.type == "game_over"){
+        showResult("win")
+        document.getElementById("result-message").textContent = "Opponent has disconnected. You win by default!"
+    }
 }
 
 function renderBoard(board){
@@ -70,7 +74,10 @@ function updateStatus(turn){
 function showResult(winner){
     const result = document.getElementById("game-result")
     const message = document.getElementById("result-message")
-    if(winner == "draw"){
+    if(winner == "win"){
+        message.textContent = " You win!!!Opponent has forfeited the game."
+    }
+    else if(winner == "draw"){
         message.textContent = "It's a draw"
     }
     else if (winner == mysymbol){

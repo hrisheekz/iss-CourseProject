@@ -9,11 +9,14 @@ from fastapi import Request
 import json
 import uuid
 import sqlite3
-from utils.facial_recognition_module import find_closest_match
+from utils.facial_recognition_module import find_closest_match, build_encodings_cache
 
 client = MongoClient("mongodb://localhost:27017/")
 db = client["multiplayer_arena"]
 user_collection = db["users"]
+
+db_images_dict = {doc["uid"]: doc["profile_image"] for doc in user_collection.find({},{"uid":1,"profile_image":1})}
+encodings_cache = build_encodings_cache(db_images_dict)
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -31,10 +34,7 @@ class LoginRequest(BaseModel):
 
 @app.post("/login")
 def login(request: Request,body: LoginRequest):
-    db_images_dict = {}
-    for doc in user_collection.find({},{"uid":1,"profile_image":1}):
-        db_images_dict[doc["uid"]] = doc["profile_image"]
-    matched_id = find_closest_match(body.image,db_images_dict)
+    matched_id = find_closest_match(body.image,encodings_cache)
     
     #Debug statements
 
@@ -280,7 +280,15 @@ async def websocket_endpoint(websocket: WebSocket,uid: str):
     con.commit()
     con.close()
     
-    await broadcast_lobby_update()
+    in_room = False
+    for room_id, room in rooms.items():
+        if uid in room["players"]:
+            await handle_get_game_state(uid, room_id)
+            in_room = True
+            break
+
+    if not in_room:
+        await broadcast_lobby_update()
 
     try:
         while True:
@@ -301,17 +309,18 @@ async def websocket_endpoint(websocket: WebSocket,uid: str):
         room_to_delete = None
         for room_id, room in rooms.items():
             if uid in room["players"]:
-                remaining_player = room["players"][1] if room["players"][0] == uid else room["players"][0]
+                if any(cell != "" for cell in room["board"]):
+                    remaining_player = room["players"][1] if room["players"][0] == uid else room["players"][0]
                 
-                update_elo(remaining_player, uid, 1.0) # remaining player wins
-                
-                if remaining_player in connected_users:
-                    await connected_users[remaining_player].send_text(json.dumps({
-                        "type": "game_over",
-                        "reason": "opponent_disconnected",
-                        "winner": "you"
-                    }))
-                room_to_delete = room_id
+                    update_elo(remaining_player, uid, 1.0) # remaining player wins
+                    
+                    if remaining_player in connected_users:
+                        await connected_users[remaining_player].send_text(json.dumps({
+                            "type": "game_over",
+                            "reason": "opponent_disconnected",
+                            "winner": "you"
+                        }))
+                    room_to_delete = room_id
                 break
                 
         if room_to_delete:
@@ -346,7 +355,13 @@ def get_leaderboard():
     cursor = con.cursor()
     cursor.execute("SELECT uid, name, elo_rating, is_online FROM users ORDER BY elo_rating DESC")
     users = [
-        {"rank": i + 1, "uid": row[0], "name": row[1], "elo_rating": row[2], "is_online": bool(row[3])}
+        {
+            "rank": i + 1,
+            "uid": row[0],
+            "name": row[1],
+            "elo_rating": row[2],
+            "is_online": bool(row[3])
+        }
         for i, row in enumerate(cursor.fetchall())
     ]
     con.close()
