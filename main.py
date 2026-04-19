@@ -268,6 +268,8 @@ async def handle_message(uid:str,msg:dict):
         await handle_move(uid,msg["cell"])
     elif msg["type"] == "get_game_state":
         await handle_get_game_state(uid,msg["room_id"])
+    elif msg["type"] == "forfeit":
+        await handle_forfeit(uid)
 
 @app.websocket("/ws/{uid}")
 async def websocket_endpoint(websocket: WebSocket,uid: str):
@@ -366,3 +368,33 @@ def get_leaderboard():
     ]
     con.close()
     return users
+
+
+async def handle_forfeit(uid: str):
+    room = None
+    room_id = None
+    
+    for id, place in rooms.items():
+        if uid in place["players"]:
+            room = place
+            room_id = id
+            break
+            
+    if room is None:
+        return
+
+    opponent_uid = room["players"][1] if uid == room["players"][0] else room["players"][0]
+    
+    update_elo(opponent_uid, uid, 1.0) 
+    
+    for player_uid in room["players"]:
+        if player_uid in connected_users:
+            winner_status = "you" if player_uid == opponent_uid else "opponent"
+            await connected_users[player_uid].send_text(json.dumps({
+                "type": "game_over",
+                "reason": "forfeit",
+                "winner": winner_status
+            }))
+            
+    del rooms[room_id]
+    await broadcast_lobby_update()

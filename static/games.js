@@ -31,6 +31,10 @@ function handleMessage(msg){
         document.getElementById("game-info").textContent = "You are "+ mysymbol + " | vs " + msg.opponent_name
         updateStatus(msg.turn)
         renderBoard(msg.board)
+        
+        //  Make the forfeit button visible when the game starts
+        const forfeitBtn = document.getElementById("forfeit-btn")
+        if (forfeitBtn) forfeitBtn.style.display = "inline-block" 
     }
     else if(msg.type == "board_update"){
         renderBoard(msg.board)
@@ -40,8 +44,13 @@ function handleMessage(msg){
         }
     }
     else if(msg.type == "game_over"){
-        showResult("win")
-        document.getElementById("result-message").textContent = "Opponent has disconnected. You win by default!"
+        if (msg.reason === "forfeit" && msg.winner === "you") {
+            showResult("forfeit_win")
+        } else if (msg.reason === "forfeit" && msg.winner === "opponent") {
+            showResult("forfeit_loss")
+        } else {
+            showResult("disconnect")
+        }
     }
 }
 
@@ -74,8 +83,21 @@ function updateStatus(turn){
 function showResult(winner){
     const result = document.getElementById("game-result")
     const message = document.getElementById("result-message")
-    if(winner == "win"){
-        message.textContent = " You win!!!Opponent has forfeited the game."
+    
+    //  Hide the forfeit button because the match ended
+    const forfeitBtn = document.getElementById("forfeit-btn")
+    if (forfeitBtn) {
+        forfeitBtn.style.display = "none"
+    }
+
+    if(winner == "disconnect"){
+        message.textContent = "Opponent has disconnected. You win by default!"
+    }
+    else if (winner == "forfeit_win"){
+        message.textContent = "You win!!! Opponent has forfeited the game."
+    }
+    else if (winner == "forfeit_loss"){
+        message.textContent = "You forfeited the game. You lose :c"
     }
     else if(winner == "draw"){
         message.textContent = "It's a draw"
@@ -86,8 +108,17 @@ function showResult(winner){
     else{
         message.textContent = "You lose :c"
     }
+    
     result.style.display = "block"
     document.getElementById("back-to-lobby").onclick = () => {
         window.location.href = "/lobby"
     }
 }
+
+document.getElementById("forfeit-btn").addEventListener("click", () => {
+    if (confirm("Are you sure you want to forfeit?")) {
+        socket.send(JSON.stringify({
+            "type": "forfeit"
+        }));
+    }
+});
