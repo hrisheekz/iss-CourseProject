@@ -217,8 +217,6 @@ def record_match(winner_uid: str,loser_uid: str,result: str):
 async def handle_move(uid:str,cell:int):
     room = None
     room_id = None
-    if cell < 0 or cell > 8:
-        return
     for id,place in rooms.items():
         if uid in place["players"]:
             room = place
@@ -254,15 +252,11 @@ async def handle_move(uid:str,cell:int):
         
         if winner == "draw":
             update_elo(p1_uid, p2_uid, 0.5)
-            record_match(p1_uid,p2_uid,"draw")
         else:
             if winner == "X":
                 p1_score = 1.0
-                record_match(p1_uid,p2_uid,"win")
             else:
                 p1_score = 0.0
-                record_match(p2_uid,p1_uid,"win")
-
             update_elo(p1_uid, p2_uid, p1_score)
             
         del rooms[room_id]
@@ -341,7 +335,6 @@ async def websocket_endpoint(websocket: WebSocket,uid: str):
                     remaining_player = room["players"][1] if room["players"][0] == uid else room["players"][0]
                 
                     update_elo(remaining_player, uid, 1.0) # remaining player wins
-                    record_match(remaining_player, uid, "forfeit")
                     
                     if remaining_player in connected_users:
                         await connected_users[remaining_player].send_text(json.dumps({
@@ -414,6 +407,7 @@ def get_leaderboard():
     con.close()
     return users
 
+
 async def handle_forfeit(uid: str):
     room = None
     room_id = None
@@ -429,8 +423,7 @@ async def handle_forfeit(uid: str):
 
     opponent_uid = room["players"][1] if uid == room["players"][0] else room["players"][0]
     
-    update_elo(opponent_uid, uid, 1.0)
-    record_match(opponent_uid,uid,"forfeit")
+    update_elo(opponent_uid, uid, 1.0) 
     
     for player_uid in room["players"]:
         if player_uid in connected_users:
