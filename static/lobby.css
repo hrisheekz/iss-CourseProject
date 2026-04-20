@@ -149,3 +149,14 @@ header {
 #logout-btn:active {
     transform: scale(0.95);
 }
+
+
+/* Styling for when a player is in a game */
+.challenge-btn.disabled-btn {
+    background-color: #374151; /* Dark grey */
+    color: #9ca3af; /* Light grey text */
+    cursor: not-allowed;
+    border: 1px solid #4b5563;
+    box-shadow: none;
+    transform: none;
+}

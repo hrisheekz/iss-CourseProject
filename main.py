@@ -103,9 +103,21 @@ async def broadcast_lobby_update():
     cursor = con.cursor()
     q1 = "SELECT uid,name,elo_rating FROM users WHERE is_online = TRUE"
     cursor.execute(q1)
+    # <--- NEW: Get a list of all players currently in an active game room
+    players_in_games = set()
+    for room in rooms.values():
+        players_in_games.update(room["players"])
+
     online_users = []
     for row in cursor.fetchall():
-        online_users.append({"uid":row[0] , "name" : row[1] , "elo_rating" : row[2]})
+        uid = row[0]
+        status = "in-game" if uid in players_in_games else "in-lobby"
+        online_users.append({
+            "uid": uid, 
+            "name": row[1], 
+            "elo_rating": row[2],
+            "status": status
+        })
     con.close()
     message = json.dumps({"type": "lobby_update", "users": online_users})
     for uid,ws in connected_users.items():
@@ -133,6 +145,7 @@ async def handle_accept(accepter_uid:str,challenger_uid:str):
                 "room_id":room_id,
                 "your_symbol": "X" if player_uid == challenger_uid else "O"
             }))
+    await broadcast_lobby_update()
 
 async def handle_decline(decliner_uid:str,challenger_uid:str,):
     if challenger_uid in connected_users:

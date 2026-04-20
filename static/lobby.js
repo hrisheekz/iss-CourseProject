@@ -63,16 +63,28 @@ function renderGrid(users){
     users.forEach(user => {
         const card = document.createElement("div")
         card.className = "user-card"
+
+        const statusHTML = user.status === "in-game" 
+            ? `<span style="color: #ff4c4c; font-size: 0.9em;">🔴 In Game</span>` 
+            : `<span style="color: #10b981; font-size: 0.9em;">🟢 In Lobby</span>`;
+
         const infodiv = document.createElement("div")
         infodiv.className = "user-info"
-        infodiv.innerHTML = `<strong>${user.name}</strong><p>Elo: ${user.elo_rating}</p>`
+
+        infodiv.innerHTML = `<strong>${user.name}</strong><p>Elo: ${user.elo_rating}</p><p style="margin-top: 4px;">${statusHTML}</p>`
         card.appendChild(infodiv)
 
         if (myid && user.uid != myid){
             const btn = document.createElement("button")
-            btn.textContent = "Challenge"
-            btn.className = "challenge-btn"
-            btn.onclick = () => sendChallenge(user.uid)
+           if (user.status === "in-lobby") {
+                btn.textContent = "Challenge"
+                btn.className = "challenge-btn"
+                btn.onclick = () => sendChallenge(user.uid)
+            } else {
+                btn.textContent = "Playing..."
+                btn.className = "challenge-btn disabled-btn"
+                btn.disabled = true // Make it unclickable
+            }
             card.appendChild(btn)
         }
         else if(user.uid == myid){
