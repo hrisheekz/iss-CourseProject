@@ -11,6 +11,7 @@
         <a href="/lobby" class="back-link">← Back to Lobby</a>
         <h1>Global Leaderboard</h1>
         <p class="subtitle">Ranked by Elo Rating</p>
+        <button id="logout-btn">Logout</button>
     </header>
 
     <main>
@@ -100,6 +101,10 @@
         loadLeaderboard();
         // Auto-refresh every 15 seconds
         setInterval(loadLeaderboard, 15000);
+
+        document.getElementById("logout-btn").addEventListener("click", () => {
+    window.location.href = "/logout";
+        });
     </script>
 </body>
 </html>

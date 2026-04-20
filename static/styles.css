@@ -136,3 +136,31 @@ button:active { transform: translateY(0); }
     background: rgba(46, 139, 90, 0.22);
     box-shadow: 0 5px 16px rgba(46, 139, 90, 0.2);
 }
+
+#forfeit-container {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+
+#forfeit-btn {
+    display: none; /* Keeps it hidden until JS turns it on */
+    background-color: #ff4c4c;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s ease-in-out;
+}
+
+#forfeit-btn:hover {
+    background-color: #e03e3e; 
+}
+
+#forfeit-btn:active {
+    background-color: #c93030;
+    transform: scale(0.98); 
+}
+

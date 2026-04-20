@@ -337,6 +337,24 @@ async def websocket_endpoint(websocket: WebSocket,uid: str):
         con.close()
         await broadcast_lobby_update()
 
+@app.get("/logout")
+async def logout(request: Request):
+    uid = request.session.get("uid")
+    if uid:
+        con = sqlite3.connect("data.db")
+        cursor = con.cursor()
+        cursor.execute("UPDATE users SET is_online = FALSE WHERE uid = ?", (uid,))
+        con.commit()
+        con.close()
+        
+        # Clear their browser session
+        request.session.clear()
+        
+        await broadcast_lobby_update()
+        
+    # Redirect them back to the login page
+    return RedirectResponse("/", status_code=303)
+
 @app.get("/game")
 def game_page(request:Request):
     id = request.session.get("uid")

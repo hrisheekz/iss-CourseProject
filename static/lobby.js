@@ -105,3 +105,7 @@ function showChallenge(challengerUid,challengerName){
 window.onload = () => {
     init()
 }
+
+document.getElementById("logout-btn").addEventListener("click", () => {
+            window.location.href = "/logout";
+        });
