@@ -4,20 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mynerve&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/games.css">
 </head>
-
 <body>
     <header>
         <h1>Tic Tac Toe</h1>
         <p id="game-info">Loading.....</p>
     </header>
     <main>
-        <div id="status">Waiting....</div>
-        
+        <div id="status"><strong>Waiting....</strong></div>
+
         <div id="forfeit-container">
-    <button id="forfeit-btn">Forfeit Match</button>
-    </div>
+            <button id="forfeit-btn">Forfeit Match</button>
+        </div>
 
         <div id="game-board">
             <div class="cell" data-index="0"></div>
@@ -36,6 +36,7 @@
             <button id="back-to-lobby">Back to Lobby</button>
         </div>
     </main>
+    <script src="/static/game-bg.js"></script>
     <script src="/static/games.js"></script>
 </body>
 </html>
