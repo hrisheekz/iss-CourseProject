@@ -204,13 +204,6 @@ def update_elo(p1_uid: str, p2_uid: str, p1_score: float):
     con.commit()
     con.close()
 
-def record_match(winner_uid: str,loser_uid: str,result: str):
-    con = sqlite3.connect("data.db")
-    cursor = con.cursor()
-    q1 = "INSERT INTO matches (winner_uid,loser_uid,result) VALUES (?,?,?)"
-    cursor.execute(q1,(winner_uid,loser_uid,result))
-    con.commit()
-    con.close()
 
 # ------*------
 
