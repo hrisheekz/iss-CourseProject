@@ -5,13 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lobby</title>
     <link rel="stylesheet" href="/static/lobby.css">
+    <link href="https://fonts.googleapis.com/css2?family=Faculty+Glyphic&family=Mynerve&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
-        <h1>Welcome to the Lobby</h1>
-        <span id="profile-name"></span>
-        <a href="/leaderboard" class="leaderboard-link"> View Leaderboard</a>
-        <button id="logout-btn">Logout</button>
+        <h1 id="welcome-message">Welcome to the Lobby</h1>
     </header>
     <main>
         <h2>Online Players</h2>
@@ -22,6 +20,7 @@
         <button id="accept-btn">Accept</button>
         <button id="decline-btn">Decline</button>
     </div>
-    <script src = "/static/lobby.js"></script>
+    <script src="/static/lobby-bg.js"></script>
+    <script src="/static/lobby.js"></script>
 </body>
 </html>
