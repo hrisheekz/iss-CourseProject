@@ -5,35 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leaderboard — Arena</title>
     <link rel="stylesheet" href="/static/leaderboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Mynerve&display=swap" rel="stylesheet">
 </head>
 <body>
     <header>
-        <a href="/lobby" class="back-link">← Back to Lobby</a>
+        <a href="/lobby.html" class="back-link"><strong>← Back to Lobby</strong></a>
         <h1>Global Leaderboard</h1>
-        <p class="subtitle">Ranked by Elo Rating</p>
-        <button id="logout-btn">Logout</button>
+        <p class="subtitle"><strong>Ranked by Elo Rating</strong></p>
+        <button id="logout-btn"><strong>Logout</strong></button>
     </header>
 
     <main>
-        <div id="stats-bar">
-            <div class="stat-pill" id="total-players">— Players</div>
-            <div class="stat-pill online" id="online-count">— Online</div>
-        </div>
+        <div class="right-section">
+            <div id="stats-bar">
+                <div class="stat-pill" id="total-players">— Players</div>
+                <div class="stat-pill online" id="online-count">— Online</div>
+            </div>
 
-        <div class="table-wrapper">
-            <table id="leaderboard-table">
-                <thead>
-                    <tr>
-                        <th class="col-rank">Rank</th>
-                        <th class="col-name">Player</th>
-                        <th class="col-elo">Elo</th>
-                        <th class="col-status">Status</th>
-                    </tr>
-                </thead>
-                <tbody id="leaderboard-body">
-                    <tr><td colspan="4" class="loading-row">Loading rankings...</td></tr>
-                </tbody>
-            </table>
+            <div class="table-wrapper">
+                <table id="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th class="col-rank">Rank</th>
+                            <th class="col-name">Player</th>
+                            <th class="col-elo">Elo</th>
+                            <th class="col-status">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-body">
+                        <tr><td colspan="4" class="loading-row">Loading rankings...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 
