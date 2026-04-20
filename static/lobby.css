@@ -8,6 +8,7 @@
     --accent-mid:    rgba(122, 59, 140, 0.28);
     --accent-border: rgba(122, 59, 140, 0.45);
     --success:       #2e8b5a;
+    --name:          #964B00;
     --success-soft:  rgba(46, 139, 90, 0.12);
     --success-border: rgba(46, 139, 90, 0.45);
     --panel-bg:      rgba(245, 240, 220, 0.82);
@@ -61,7 +62,7 @@ header h1 {
 }
 
 #profile-name {
-    color: var(--success);
+    color: var(--name);
     font-weight: 800;
     font-size: 1rem;
 }

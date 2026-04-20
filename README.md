@@ -18,6 +18,14 @@ CREATE TABLE IF NOT EXISTS users (
     elo_rating  INTEGER      DEFAULT 1200,
     is_online   BOOLEAN      DEFAULT FALSE
 );
+
+CREATE TABLE IF NOT EXISTS matches (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    winner_uid   VARCHAR(255) NOT NULL,
+    loser_uid    VARCHAR(255) NOT NULL,
+    result       VARCHAR(255) NOT NULL,
+    timestamp    DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 ```
 
 ### MongoDB (Image Storage)
