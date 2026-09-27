@@ -176,6 +176,7 @@ def check_winner(board:list) -> str:
 
 
 # -----*------ phase 4
+
 def update_elo(p1_uid: str, p2_uid: str, p1_score: float):
     
      # score: 1.0 for a win, 0.5 for a draw, 0.0 for a loss

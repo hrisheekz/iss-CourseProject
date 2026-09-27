@@ -66,3 +66,12 @@ The WebSocket server runs on the same process as the HTTP server via FastAPI —
 - The WebSocket server and HTTP server are co-located in the same FastAPI application.
 - Session management is handled server-side using `itsdangerous` via Starlette's `SessionMiddleware`.
 - A player who disconnects mid-game forfeits the match regardless of board state, and Elo is updated accordingly.
+
+
+
+## Team & Contributions
+* **Hrisheek Patnala (Myself)** - Developed phase-4 and the frontend
+* **Aditya Ak** - Developed major part of the backend including phase 2 and 3
+* **Kimaya Arora** - Developed majority of the frontend and phase 1
+
+Specifications about each of the phases of the project and all the requirements have been specified in [Project-doc.pdf](Project-doc.pdf)
